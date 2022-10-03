@@ -7,6 +7,7 @@ import numpy as np
 
 import pycountry
 import json
+import geopandas as gpd
 from tqdm import tqdm as tqdm
 from sklearn.model_selection import ParameterGrid
 import requests
