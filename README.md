@@ -9,3 +9,5 @@
 >> node session_init.js
 
 2- Run the crawler!
+
+./new_crawler.py
