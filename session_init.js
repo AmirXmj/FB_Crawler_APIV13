@@ -16,7 +16,7 @@ async function initFBSession(id, pass) {
     let browser;
 
     let puppeteerOptions = {
-        headless: true,
+        headless: false,
         args: [
             "--window-size=1270x950",
             "--disable-crash-reporter",
@@ -44,14 +44,15 @@ async function initFBSession(id, pass) {
         var button_FB = await page.$('button[data-cookiebanner="accept_button"]');
 
         await button_FB.click();
-        await page.waitForTimeout(1000);
 
         await page.type("input#email", id, { delay: 10 });
         await page.type("input#pass", pass, { delay: 10 });
         button_FB = await page.$('button[name="login"]');
+
         await button_FB.click();
 
         await page.setRequestInterception(true);
+
         var tokenandid = await getTokenFB(page);
         await page.close();
         await browser.close();
@@ -81,20 +82,25 @@ async function getTokenFB(page) {
         url = interceptedRequest.url();
         filter = /access_token=[\s\S]*&__cppo/g;
         index = url.match(filter);
-        if (index) {
-            accountId_part =
-                url.match(/act_\d*/g)[0].split("act_")[1] || account_Id_part;
-            token =
-                url
-                .match(/access_token=[\s\S]*&__cppo/g)[0]
-                .split("access_token=")[1]
-                .split("&__cppo")[0] || token;
+        try {
+            if (index) {
+                accountId_part =
+                    url.match(/act_\d*/g)[0].split("act_")[1] || account_Id_part;
+                token =
+                    url
+                    .match(/access_token=[\s\S]*&__cppo/g)[0]
+                    .split("access_token=")[1]
+                    .split("&__cppo")[0] || token;
+            }
+
+        } catch (error) {
+
         }
         interceptedRequest.continue();
     });
 
     await page.reload({ waitUntil: ["networkidle2"] });
-
+    await page.waitForTimeout(3000);
     cookies = await getCookies(page);
     console.log(accountId_part.toString(), token.toString());
 
